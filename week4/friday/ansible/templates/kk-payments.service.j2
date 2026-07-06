@@ -1,0 +1,82 @@
+[Unit]
+Description=KijaniKiosk Payments Service
+After=network.target
+
+[Service]
+Type=simple
+User=kk-payments
+Group=kk-payments
+WorkingDirectory=/opt/kijanikiosk
+ExecStart=/opt/kijanikiosk/bin/payments-api
+Restart=always
+RestartSec=10
+
+# File System Protection - restricts write access to system directories
+ProtectSystem=strict
+# Allows writes only to these specific directories
+ReadWritePaths=/opt/kijanikiosk/config /opt/kijanikiosk/logs
+# Prevents access to other services' temporary files
+PrivateTmp=yes
+# Restricts access to hardware devices
+PrivateDevices=yes
+# Prevents access to user home directories
+ProtectHome=yes
+# Prevents modification of kernel tunables
+ProtectKernelTunables=yes
+# Prevents modification of control groups
+ProtectControlGroups=yes
+# Prevents loading or reading kernel modules
+ProtectKernelModules=yes
+# Prevents reading from kernel log ring buffer
+ProtectKernelLogs=yes
+# Prevents writing to the hardware clock
+ProtectClock=yes
+# Prevents mounting/unmounting file systems
+PrivateMounts=yes
+# Prevents changing hostname or domainname
+ProtectHostname=yes
+# Removes System V IPC objects when service stops
+RemoveIPC=yes
+
+# Capabilities - drops ALL capabilities to minimize privilege escalation risk
+CapabilityBoundingSet=
+AmbientCapabilities=
+# Prevents the service from gaining new privileges
+NoNewPrivileges=yes
+
+# Network Restrictions - prevents network access entirely
+PrivateNetwork=yes
+# Limits socket families to only what is necessary
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+# System Call Restrictions - allows only native architecture
+SystemCallArchitectures=native
+# Blocks dangerous system calls
+SystemCallFilter=~@clock @debug @module @mount @raw-io @reboot @swap @privileged @resources @cpu-emulation @obsolete
+# Prevents creating any namespaces
+RestrictNamespaces=yes
+# Prevents realtime scheduling
+RestrictRealtime=yes
+# Prevents SUID/SGID file creation
+RestrictSUIDSGID=yes
+# Prevents changing personality
+LockPersonality=yes
+# Prevents creating writable executable memory mappings
+MemoryDenyWriteExecute=yes
+
+# Other Security Settings
+# Sets umask for files created by the service
+UMask=0027
+# Hides process information from the service
+ProtectProc=invisible
+# Limits process information to only PIDs
+ProcSubset=pid
+# Prevents sharing key material with other services
+KeyringMode=private
+# Restricts access to other users
+PrivateUsers=yes
+# Removes all device access
+DeviceAllow=
+
+[Install]
+WantedBy=multi-user.target
