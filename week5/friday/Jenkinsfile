@@ -1,0 +1,116 @@
+pipeline {
+    agent {
+        docker {
+            image 'node:18-alpine'
+            args '-u root'
+        }
+    }
+    
+    environment {
+        GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+    }
+    
+    stages {
+        stage('Lint') {
+            steps {
+                sh 'echo "Starting Lint stage..."'
+                sh 'node --version'
+                sh 'npm --version'
+                sh 'echo "Lint check passed"'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'echo "Starting Build stage..."'
+                sh 'npm init -y'
+                sh 'npm install jest --save-dev'
+                sh 'echo "Build completed"'
+            }
+        }
+        
+        stage('Verify') {
+            parallel {
+                stage('Test') {
+                    steps {
+                        sh 'echo "Running Test stage..."'
+                        sh '''
+echo 'test("Addition test 1 - intentional failure", () => {
+    expect(1 + 1).toBe(3);
+});
+
+test("Addition test 2 - intentional failure", () => {
+    expect(5 + 5).toBe(11);
+});
+
+test("Addition test 3 - intentional failure", () => {
+    expect(10 + 10).toBe(30);
+});
+
+test("Addition test 4 - intentional failure", () => {
+    expect(2 + 3).toBe(10);
+});
+
+test("Addition test 5 - intentional failure", () => {
+    expect(100 + 100).toBe(300);
+});' > addition.fail.test.js
+'''
+                        sh 'npx jest addition.fail.test.js || echo "Tests failed as expected"'
+                    }
+                    post {
+                        failure {
+                            echo 'TEST STAGE FAILED - INTENTIONAL'
+                        }
+                    }
+                }
+                
+                stage('Security Audit') {
+                    steps {
+                        sh 'echo "Running Security Audit..."'
+                        sh 'npm audit || echo "Audit completed"'
+                        sh 'echo "Security audit done"'
+                    }
+                }
+            }
+        }
+        
+        stage('Archive') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
+            steps {
+                sh 'echo "Archiving artifacts..."'
+                sh 'mkdir -p dist'
+                sh 'echo "KijaniKiosk Payments API" > dist/README.md'
+                sh 'zip -r payments-${GIT_SHA}.zip dist/'
+                archiveArtifacts artifacts: '*.zip', fingerprint: true
+            }
+        }
+        
+        stage('Publish') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
+            steps {
+                sh 'echo "Publishing to Nexus..."'
+                sh 'echo "Artifact ready for publishing"'
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+            sh 'echo "Workspace cleaned"'
+        }
+        success {
+            sh 'echo "PIPELINE SUCCESS"'
+        }
+        failure {
+            sh 'echo "PIPELINE FAILED - INTENTIONAL"'
+        }
+        changed {
+            sh 'echo "Status changed"'
+        }
+    }
+}
