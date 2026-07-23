@@ -32,6 +32,31 @@ The final step is to publish the packaged code to a repository where it can be d
 
 The pipeline currently includes a test that intentionally fails. This is to demonstrate that the pipeline correctly catches bad code and prevents it from being published. The test checks if `1 + 1` equals `3`, which it doesn't, so the test fails.
 
+## Intentional Failures Tested
+
+To ensure the pipeline behaves correctly under failure conditions, intentional failures were tested at every stage to monitor and simulate the behavior of the server. Each stage was deliberately broken to observe how the pipeline would respond.
+
+### Failure Testing Summary
+
+| Stage | What was tested | Expected Behavior | Result |
+|-------|-----------------|-------------------|--------|
+| **Lint Stage** | Added invalid syntax | Pipeline stops at Lint stage | Correct behavior observed |
+| **Build Stage** | Removed npm install | Build stage fails, remaining stages skip | Correct behavior observed |
+| **Test Stage** | Changed addition test to expect 1+1=3 | Test stage fails, Archive and Publish skip | Correct behavior observed |
+| **Archive Stage** | Deleted dist directory | Archive fails, Publish skips | Correct behavior observed |
+| **Publish Stage** | Used invalid Nexus credentials | Publish fails, Archive still succeeds | Correct behavior observed |
+
+### Why This Matters
+
+Testing failures at every stage proves that:
+- The pipeline is resilient and handles errors gracefully
+- Each stage properly validates its own requirements
+- The correct stages are skipped when dependencies are missing
+- The team can trust the pipeline to catch problems at every step
+- Production is protected from bad code, even if multiple things go wrong
+
+This comprehensive testing ensures that when something does break, the pipeline will handle it predictably and the team will be notified immediately.
+
 ## Why This Matters
 
 This pipeline ensures that every change made to the codebase is automatically checked for:
@@ -60,19 +85,6 @@ This ensures that the right people are informed immediately when something break
 
 Jenkins runs on the API server and communicates with GitHub to fetch the latest code. The pipeline runs inside a Docker container, which provides a consistent environment for building and testing the application. Each stage of the pipeline is isolated and runs in its own container, ensuring that dependencies don't conflict with each other.
 
-## Future Improvements
-
-The pipeline could be enhanced with additional features such as:
-- Automated deployment to staging and production environments
-- Integration with Slack or Teams for instant messaging alerts
-- Performance testing to ensure the API meets response time requirements
-- Code coverage reports to track how much of the codebase is tested
-- Parallel testing across different Node.js versions
-
-## Conclusion
-
-This CI pipeline represents a significant step forward in the KijaniKiosk project's development workflow. By automating the build, test, and security processes, the team can deliver higher quality software with greater confidence and speed.
-
 ## What Happens When Something Goes Wrong
 
 When the pipeline fails, here is what happens:
@@ -87,3 +99,16 @@ When the pipeline fails, here is what happens:
 - A log of all failures is kept for debugging and review purposes
 
 This ensures that broken code never makes it to production and the team is always aware of any issues immediately.
+
+## Future Improvements
+
+The pipeline could be enhanced with additional features such as:
+- Automated deployment to staging and production environments
+- Integration with Slack or Teams for instant messaging alerts
+- Performance testing to ensure the API meets response time requirements
+- Code coverage reports to track how much of the codebase is tested
+- Parallel testing across different Node.js versions
+
+## Conclusion
+
+This CI pipeline represents a significant step forward in the KijaniKiosk project's development workflow. By automating the build, test, and security processes, the team can deliver higher quality software with greater confidence and speed.
