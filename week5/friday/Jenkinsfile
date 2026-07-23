@@ -8,6 +8,7 @@ pipeline {
     
     environment {
         GIT_SHA = sh(script: 'apk add --no-cache git && git rev-parse --short HEAD', returnStdout: true).trim()
+        EMAIL_RECIPIENTS = 'amina@kijanikiosk.com, osei@kijanikiosk.com'
     }
     
     stages {
@@ -17,6 +18,12 @@ pipeline {
                 sh 'node --version'
                 sh 'npm --version'
                 sh 'echo "Lint check passed"'
+                sh 'exit 1'
+            }
+            post {
+                failure {
+                    sh 'echo "LINT STAGE FAILED - Intentional failure injected"'
+                }
             }
         }
         
@@ -35,11 +42,11 @@ pipeline {
                     steps {
                         sh 'echo "Running Test stage..."'
                         sh '''
-echo 'test("Addition test - intentional failure", () => {
-    expect(1 + 1).toBe(3);
-});' > addition.fail.test.js
+echo 'test("Addition test - should pass", () => {
+    expect(1 + 1).toBe(2);
+});' > addition.pass.test.js
 '''
-                        sh 'npx jest addition.fail.test.js || echo "Tests failed but continuing..."'
+                        sh 'npx jest addition.pass.test.js'
                     }
                 }
                 
@@ -81,7 +88,36 @@ echo 'test("Addition test - intentional failure", () => {
             sh 'echo "PIPELINE SUCCESS"'
         }
         failure {
-            sh 'echo "PIPELINE FAILED"'
+            sh 'echo "PIPELINE FAILED - Lint stage failed intentionally"'
+            emailext (
+                to: "${EMAIL_RECIPIENTS}",
+                subject: "❌ Jenkins Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+KijaniKiosk CI Pipeline - Build Failure Report
+
+Build: ${env.JOB_NAME} #${env.BUILD_NUMBER}
+Status: FAILED
+Stage: Lint Stage (Intentional Failure)
+Time: ${new Date()}
+URL: ${env.BUILD_URL}
+
+Error Details:
+The Lint stage was intentionally failed to test the notification system.
+This simulates what happens when code quality issues are detected.
+
+The pipeline stopped at the Lint stage because an exit 1 was triggered.
+All subsequent stages (Build, Test, Security Audit, Archive, Publish) were skipped.
+
+This is a test of the email notification system for the KijaniKiosk pipeline.
+
+Action Required:
+Review the lint failure and ensure code quality standards are met.
+
+---
+This email was sent by Jenkins CI/CD Pipeline
+KijaniKiosk DevOps Team
+"""
+            )
         }
         changed {
             script {
