@@ -8,7 +8,6 @@ pipeline {
     
     environment {
         GIT_SHA = sh(script: 'apk add --no-cache git && git rev-parse --short HEAD', returnStdout: true).trim()
-        EMAIL_RECIPIENTS = 'amina@kijanikiosk.com, osei@kijanikiosk.com'
     }
     
     stages {
@@ -18,12 +17,6 @@ pipeline {
                 sh 'node --version'
                 sh 'npm --version'
                 sh 'echo "Lint check passed"'
-                sh 'exit 1'
-            }
-            post {
-                failure {
-                    sh 'echo "LINT STAGE FAILED - Intentional failure injected"'
-                }
             }
         }
         
@@ -33,6 +26,18 @@ pipeline {
                 sh 'npm init -y'
                 sh 'npm install jest --save-dev'
                 sh 'echo "Build completed"'
+            }
+        }
+        
+        stage('Install Packages') {
+            steps {
+                sh 'echo "Installing additional packages..."'
+                sh 'exit 1'
+            }
+            post {
+                failure {
+                    sh 'echo "INSTALL PACKAGES STAGE FAILED"'
+                }
             }
         }
         
@@ -80,51 +85,17 @@ echo 'test("Addition test - should pass", () => {
     }
     
     post {
-        always {
-            cleanWs()
-            sh 'echo "Workspace cleaned"'
-        }
         success {
-            sh 'echo "PIPELINE SUCCESS"'
+            echo "PIPELINE SUCCESS - Build ${env.BUILD_NUMBER} completed successfully"
         }
         failure {
-            sh 'echo "PIPELINE FAILED - Lint stage failed intentionally"'
-            emailext (
-                to: "${EMAIL_RECIPIENTS}",
-                subject: "❌ Jenkins Build Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-KijaniKiosk CI Pipeline - Build Failure Report
-
-Build: ${env.JOB_NAME} #${env.BUILD_NUMBER}
-Status: FAILED
-Stage: Lint Stage (Intentional Failure)
-Time: ${new Date()}
-URL: ${env.BUILD_URL}
-
-Error Details:
-The Lint stage was intentionally failed to test the notification system.
-This simulates what happens when code quality issues are detected.
-
-The pipeline stopped at the Lint stage because an exit 1 was triggered.
-All subsequent stages (Build, Test, Security Audit, Archive, Publish) were skipped.
-
-This is a test of the email notification system for the KijaniKiosk pipeline.
-
-Action Required:
-Review the lint failure and ensure code quality standards are met.
-
----
-This email was sent by Jenkins CI/CD Pipeline
-KijaniKiosk DevOps Team
-"""
-            )
+            echo "PIPELINE FAILED - Build ${env.BUILD_NUMBER} failed. Check logs at ${env.BUILD_URL}console"
         }
         changed {
-            script {
-                if (currentBuild.previousBuild) {
-                    sh 'echo "Status changed from previous build"'
-                }
-            }
+            echo "Build status changed to ${currentBuild.currentResult} - ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+        }
+        always {
+            cleanWs()
         }
     }
 }
