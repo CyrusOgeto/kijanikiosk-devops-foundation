@@ -72,3 +72,18 @@ The pipeline could be enhanced with additional features such as:
 ## Conclusion
 
 This CI pipeline represents a significant step forward in the KijaniKiosk project's development workflow. By automating the build, test, and security processes, the team can deliver higher quality software with greater confidence and speed.
+
+## What Happens When Something Goes Wrong
+
+When the pipeline fails, here is what happens:
+
+- The pipeline stops immediately and shows a red X in Jenkins
+- The stage that failed is highlighted so you know exactly where the problem is
+- An email notification is sent to the team with the build details
+- The failed code is NOT published or deployed to production
+- The developer who pushed the code is notified to fix the issue
+- All tests and security checks are rerun on the next code push
+- The pipeline only turns green again when all issues are resolved
+- A log of all failures is kept for debugging and review purposes
+
+This ensures that broken code never makes it to production and the team is always aware of any issues immediately.
