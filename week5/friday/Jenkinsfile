@@ -29,18 +29,6 @@ pipeline {
             }
         }
         
-        stage('Install Packages') {
-            steps {
-                sh 'echo "Installing additional packages..."'
-                sh 'exit 1'
-            }
-            post {
-                failure {
-                    sh 'echo "INSTALL PACKAGES STAGE FAILED"'
-                }
-            }
-        }
-        
         stage('Verify') {
             parallel {
                 stage('Test') {
