@@ -35,31 +35,15 @@ pipeline {
                     steps {
                         sh 'echo "Running Test stage..."'
                         sh '''
-echo 'test("Addition test 1 - intentional failure", () => {
+echo 'test("Addition test - intentional failure", () => {
     expect(1 + 1).toBe(3);
-});
-
-test("Addition test 2 - intentional failure", () => {
-    expect(5 + 5).toBe(11);
-});
-
-test("Addition test 3 - intentional failure", () => {
-    expect(10 + 10).toBe(30);
-});
-
-test("Addition test 4 - intentional failure", () => {
-    expect(2 + 3).toBe(10);
-});
-
-test("Addition test 5 - intentional failure", () => {
-    expect(100 + 100).toBe(300);
 });' > addition.fail.test.js
 '''
-                        sh 'npx jest addition.fail.test.js || echo "Tests failed as expected"'
+                        sh 'npx jest addition.fail.test.js'
                     }
                     post {
                         failure {
-                            echo 'TEST STAGE FAILED - INTENTIONAL'
+                            echo 'TEST STAGE FAILED'
                         }
                     }
                 }
@@ -108,10 +92,14 @@ test("Addition test 5 - intentional failure", () => {
             sh 'echo "PIPELINE SUCCESS"'
         }
         failure {
-            sh 'echo "PIPELINE FAILED - INTENTIONAL"'
+            sh 'echo "PIPELINE FAILED"'
         }
         changed {
-            sh 'echo "Status changed"'
+            script {
+                if (currentBuild.previousBuild) {
+                    sh 'echo "Status changed from previous build"'
+                }
+            }
         }
     }
 }
