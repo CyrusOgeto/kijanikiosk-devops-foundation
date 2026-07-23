@@ -40,11 +40,11 @@ To ensure the pipeline behaves correctly under failure conditions, intentional f
 
 | Stage | What was tested | Expected Behavior | Result |
 |-------|-----------------|-------------------|--------|
-| **Lint Stage** | Added invalid syntax | Pipeline stops at Lint stage | Correct behavior observed |
-| **Build Stage** | Removed npm install | Build stage fails, remaining stages skip | Correct behavior observed |
-| **Test Stage** | Changed addition test to expect 1+1=3 | Test stage fails, Archive and Publish skip | Correct behavior observed |
-| **Archive Stage** | Deleted dist directory | Archive fails, Publish skips | Correct behavior observed |
-| **Publish Stage** | Used invalid Nexus credentials | Publish fails, Archive still succeeds | Correct behavior observed |
+| **Lint Stage** | Added `exit 1` to force a failure | Pipeline stops immediately at Lint, all other stages are skipped | Correct behavior observed |
+| **Build Stage** | Added `exit 1` to force a failure | Lint passes, Build fails, Verify/Archive/Publish are skipped | Correct behavior observed |
+| **Test Stage** | Changed addition test to expect 1+1=3 | Lint and Build pass, Test fails, Archive and Publish skip | Correct behavior observed |
+| **Archive Stage** | Added `exit 1` to force a failure | Lint, Build, and Test pass, Archive fails, Publish is skipped | Correct behavior observed |
+| **Publish Stage** | Added `exit 1` to force a failure | All previous stages pass, Publish fails | Correct behavior observed |
 
 ### Why This Matters
 
