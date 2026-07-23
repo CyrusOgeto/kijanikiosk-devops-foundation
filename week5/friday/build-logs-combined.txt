@@ -1,0 +1,45 @@
+=========================================
+BUILD 13 LOG
+=========================================
+<html><head><meta http-equiv='refresh' content='1;url=/login?from=%2Fjob%2Fkijanikiosk-ci%2F13%2FconsoleText'/><script id='redirect' data-redirect-url='/login?from=%2Fjob%2Fkijanikiosk-ci%2F13%2FconsoleText' src='/static/6c234324/scripts/redirect.js'></script></head><body style='background-color:white; color:white;'>
+Authentication required
+<!--
+You are authenticated as: anonymous
+Groups that you are in:
+  anonymous
+Permission you need to have (but didn't): hudson.model.Hudson.Read
+ ... which is implied by: hudson.security.Permission.GenericRead
+ ... which is implied by: hudson.model.Hudson.Administer
+-->
+
+</body></html>                                                                                                                                                                                                                                                                                                            
+=========================================
+BUILD 14 LOG
+=========================================
+<html><head><meta http-equiv='refresh' content='1;url=/login?from=%2Fjob%2Fkijanikiosk-ci%2F14%2FconsoleText'/><script id='redirect' data-redirect-url='/login?from=%2Fjob%2Fkijanikiosk-ci%2F14%2FconsoleText' src='/static/6c234324/scripts/redirect.js'></script></head><body style='background-color:white; color:white;'>
+Authentication required
+<!--
+You are authenticated as: anonymous
+Groups that you are in:
+  anonymous
+Permission you need to have (but didn't): hudson.model.Hudson.Read
+ ... which is implied by: hudson.security.Permission.GenericRead
+ ... which is implied by: hudson.model.Hudson.Administer
+-->
+
+</body></html>                                                                                                                                                                                                                                                                                                            
+=========================================
+BUILD 16 LOG
+=========================================
+<html><head><meta http-equiv='refresh' content='1;url=/login?from=%2Fjob%2Fkijanikiosk-ci%2F16%2FconsoleText'/><script id='redirect' data-redirect-url='/login?from=%2Fjob%2Fkijanikiosk-ci%2F16%2FconsoleText' src='/static/6c234324/scripts/redirect.js'></script></head><body style='background-color:white; color:white;'>
+Authentication required
+<!--
+You are authenticated as: anonymous
+Groups that you are in:
+  anonymous
+Permission you need to have (but didn't): hudson.model.Hudson.Read
+ ... which is implied by: hudson.security.Permission.GenericRead
+ ... which is implied by: hudson.model.Hudson.Administer
+-->
+
+</body></html>                                                                                                                                                                                                                                                                                                            
