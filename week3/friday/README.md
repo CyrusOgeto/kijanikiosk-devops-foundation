@@ -1,1 +1,0 @@
-# KijaniKiosk Security Spec
