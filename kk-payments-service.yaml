@@ -1,0 +1,22 @@
+# ============================================================
+# Developed by: Cyrus Ogeto
+# Project: KijaniKiosk Payments API
+# Purpose: Kubernetes Service manifest to expose kk-payments
+# ============================================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kk-payments-service
+  labels:
+    app: kk-payments
+spec:
+  # Routes traffic to Pods with this label
+  selector:
+    app: kk-payments
+  ports:
+  - name: http
+    port: 3000              # Internal Service port
+    targetPort: 3000        # Pod port (where app listens)
+    nodePort: 30001         # External port (minikube ip:30001)
+  type: NodePort            # Exposes Service outside the cluster
