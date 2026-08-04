@@ -1,0 +1,34 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock
+
+# MinIO
+minio-data/
+*.log
+nohup.out
+
+# Ansible
+*.retry
+*.log
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+
+# Backup files
+backup/
+*~
+
+# Temporary files
+*.tmp
+*.temp
