@@ -1,0 +1,15 @@
+==========================================
+KijaniKiosk Docker Image Verification
+==========================================
+
+Image: kk-payments:1.0.0
+IMAGE               ID             DISK USAGE   CONTENT SIZE   EXTRA
+kk-payments:1.0.0   28f66f016978        186MB         45.6MB        
+
+User check:
+kijani
+
+TypeScript check:
+tsc not found (GOOD)
+
+Health check:
