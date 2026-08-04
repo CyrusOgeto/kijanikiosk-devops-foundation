@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kk-payments
+  labels:
+    app: kk-payments
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kk-payments
+  template:
+    metadata:
+      labels:
+        app: kk-payments
+    spec:
+      containers:
+      - name: kk-payments
+        image: localhost:5000/kk-payments:1.0.0-9e470d4
+        ports:
+        - containerPort: 3000
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      imagePullSecrets:
+      - name: kijani-registry-credentials
