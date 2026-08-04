@@ -1,0 +1,14 @@
+==========================================
+Private Registry Push - Tue Aug  4 09:04:47 PM EAT 2026
+==========================================
+Git SHA: 9e470d4
+Image: localhost:5000/kk-payments:1.0.0-9e470d4
+
+Push output:
+1.0.0-9e470d4: digest: sha256:28f66f016978f38198a495d245797ff1ce2cb88c76c819865b476a1d2f75018c size: 856
+
+Pull fresh:
+Status: Downloaded newer image for localhost:5000/kk-payments:1.0.0-9e470d4
+
+Verify:
+User: kijani
