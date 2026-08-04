@@ -1,0 +1,34 @@
+==========================================
+MONITOR STARTED: Tue Aug  4 16:55:34 EAT 2026
+Confidence window: 60s
+Poll interval: 5s
+==========================================
+Active environment: green
+Health URL: http://127.0.0.1:3001/health
+Waiting for confidence window (60s)...
+Confidence window complete. Starting health monitoring...
+[16:57:14] Health check FAILED (1/2)
+[16:57:19] Health check FAILED (2/2)
+==========================================
+[MONITOR FAIL] ROLLBACK TRIGGERED at Tue Aug  4 16:57:19 EAT 2026
+Active environment: green
+Health URL: http://127.0.0.1:3001/health
+Rollback target: unknown
+==========================================
+Rolling back to blue...
+Switching from green to blue...
+Checking target service (kk-api-blue) health...
+Updating nginx configuration...
+Updating state files...
+Switch to blue complete!
+Active: blue
+Previous: green
+Port: 3000
+Health URL: http://127.0.0.1:80/health
+==========================================
+ROLLBACK COMPLETE: Tue Aug  4 16:57:19 EAT 2026
+New active environment: blue
+Rollback successful: blue is healthy
+==========================================
+MONITOR EXITING
+==========================================
