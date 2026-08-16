@@ -1,0 +1,121 @@
+pipeline {
+    agent any
+
+    environment {
+        STAGING_NAMESPACE = 'kijani-staging'
+        PRODUCTION_NAMESPACE = 'kijani-project'
+        STAGING_HOST = 'kijani.local'
+        EMAIL_RECIPIENT = 'cyrus.nyamwange@student.moringaschool.com'
+    }
+
+    stages {
+
+        stage('Deploy to Staging') {
+            steps {
+                script {
+                    sh """
+                        kubectl apply -f capstone/k8s/staging/kk-payments-configmap.yaml
+                        kubectl apply -f capstone/k8s/staging/kk-api-configmap.yaml
+                        kubectl apply -f capstone/k8s/staging/kk-payments-deployment.yaml
+                        kubectl apply -f capstone/k8s/staging/kk-payments-service.yaml
+                        kubectl apply -f capstone/k8s/staging/kk-api-deployment.yaml
+                        kubectl apply -f capstone/k8s/staging/kk-api-service.yaml
+                    """
+                }
+            }
+        }
+
+        stage('Wait for Rollout') {
+            steps {
+                script {
+                    sh """
+                        kubectl rollout status deployment/kk-payments -n ${STAGING_NAMESPACE}
+                        kubectl rollout status deployment/kk-api -n ${STAGING_NAMESPACE}
+                    """
+                }
+            }
+        }
+
+        stage('Smoke Tests') {
+            steps {
+                script {
+                    sh """
+                        echo "Running smoke tests..."
+                        curl -s -o /dev/null -w "Payments health: %{http_code}\\n" http://${STAGING_HOST}/payments/health
+                        curl -s -o /dev/null -w "API health: %{http_code}\\n" http://${STAGING_HOST}/api/
+                    """
+                }
+            }
+        }
+
+        stage('Approval Gate') {
+            steps {
+                input message: 'Deploy to production?', ok: 'Approve'
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                script {
+                    sh """
+                        echo "Deploying to production namespace: ${PRODUCTION_NAMESPACE}"
+                        kubectl apply -f capstone/k8s/production/kk-payments-configmap.yaml
+                        kubectl apply -f capstone/k8s/production/kk-api-configmap.yaml
+                        kubectl apply -f capstone/k8s/production/kk-payments-deployment.yaml
+                        kubectl apply -f capstone/k8s/production/kk-payments-service.yaml
+                        kubectl apply -f capstone/k8s/production/kk-api-deployment.yaml
+                        kubectl apply -f capstone/k8s/production/kk-api-service.yaml
+                    """
+                }
+            }
+        }
+
+        stage('Verify Production') {
+            steps {
+                script {
+                    sh """
+                        kubectl rollout status deployment/kk-payments -n ${PRODUCTION_NAMESPACE}
+                        kubectl rollout status deployment/kk-api -n ${PRODUCTION_NAMESPACE}
+                        echo "Production deployment complete."
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo "Pipeline failed. Check logs for details."
+            emailext (
+                subject: "KijaniKiosk Pipeline FAILED - Build ${env.BUILD_NUMBER}",
+                body: """
+                    Build ${env.BUILD_NUMBER} has FAILED.
+
+                    Job: ${env.JOB_NAME}
+                    URL: ${env.BUILD_URL}
+                    Branch: ${env.BRANCH_NAME}
+                    Stage: ${env.STAGE_NAME}
+
+                    Check the console output for more details.
+                """,
+                to: "${EMAIL_RECIPIENT}"
+            )
+        }
+        success {
+            echo "Pipeline completed successfully."
+            emailext (
+                subject: "KijaniKiosk Pipeline SUCCESS - Build ${env.BUILD_NUMBER}",
+                body: """
+                    Build ${env.BUILD_NUMBER} has SUCCEEDED.
+
+                    Job: ${env.JOB_NAME}
+                    URL: ${env.BUILD_URL}
+                    Branch: ${env.BRANCH_NAME}
+
+                    Deployment to staging and production completed successfully.
+                """,
+                to: "${EMAIL_RECIPIENT}"
+            )
+        }
+    }
+}
