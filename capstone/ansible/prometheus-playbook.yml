@@ -122,3 +122,4 @@
     - name: Display Prometheus service endpoint
       debug:
         msg: "Prometheus is running. Access via kubectl port-forward -n kijani-staging svc/prometheus-server 9090:80"
+# This is to test if it will build on a PR
