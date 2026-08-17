@@ -6,6 +6,7 @@ pipeline {
         PRODUCTION_NAMESPACE = 'kijani-project'
         STAGING_HOST = 'kijani.local'
         EMAIL_RECIPIENT = 'cyrus.nyamwange@student.moringaschool.com'
+        KUBECONFIG = '/root/.kube/config'
     }
 
     stages {
