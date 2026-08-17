@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: kijani-staging
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: []
+
+    rule_files:
+      - /etc/prometheus/alerts.yml
+
+    scrape_configs:
+      - job_name: 'kk-payments'
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: kk-payments
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: keep
+            regex: "3000"
+          - source_labels: [__meta_kubernetes_pod_ready]
+            action: keep
+            regex: "true"
+
+  alerts.yml: |
+    groups:
+      - name: kk-payments-alerts
+        interval: 30s
+        rules:
+          - alert: KKPaymentsHighErrorRate
+            expr: |
+              sum(rate(nginx_ingress_controller_requests{service="kk-payments", status=~"5.."}[2m])) 
+              / 
+              sum(rate(nginx_ingress_controller_requests{service="kk-payments"}[2m])) 
+              > 0.05
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High error rate for kk-payments"
+              description: "Error rate is {{ $value | humanizePercentage }} for kk-payments over the last 2 minutes."
+
+          - alert: KKPaymentsHighLatency
+            expr: |
+              histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{service="kk-payments"}[2m])) by (le)) > 0.5
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High latency for kk-payments"
+              description: "95th percentile latency is {{ $value }}s for kk-payments over the last 2 minutes."
+
+          - alert: KKPaymentsPodRestarts
+            expr: |
+              rate(kube_pod_container_status_restarts_total{namespace="kijani-staging", pod=~"kk-payments.*"}[5m]) > 0.01
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "kk-payments pods restarting frequently"
+              description: "Pod {{ $labels.pod }} is restarting at a rate of {{ $value }} restarts per second."
